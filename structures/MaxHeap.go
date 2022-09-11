@@ -21,7 +21,7 @@ func (h *MaxHeap) swap(i1, i2 int) {
 }
 
 func (h *MaxHeap) MaxHeapifyUp(index int) {
-	for h.array[index] > parent(index) {
+	for h.array[parent(index)] < h.array[index] {
 		h.swap(parent(index), index)
 		index = parent(index)
 	}
