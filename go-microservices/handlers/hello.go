@@ -8,10 +8,15 @@ import (
 )
 
 type Hello struct {
+	l *log.Logger
+}
+
+func newHello(l *log.Logger) *Hello {
+	return &Hello{l}
 }
 
 func (h *Hello) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-	log.Println("Hello World!")
+	h.l.Println("Hello World!")
 	d, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(rw, "Error", http.StatusBadRequest)
