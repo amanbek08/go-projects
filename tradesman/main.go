@@ -44,13 +44,12 @@ func (t *Tradesman) BuyItem(i Item) {
 	}
 
 	t.cash = t.cash - i.cost
-	t.capacity = -i.weight
+	t.capacity = t.capacity - i.weight
 	t.items = append(t.items, i)
 
 	fmt.Println("Item bought!")
 }
 
 func main() {
-	tradesman := Tradesman{capacity: 50, speed: 5, cash: 500}
 
 }
