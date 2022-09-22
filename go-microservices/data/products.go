@@ -62,17 +62,19 @@ func findProduct(id int) (*Product, int, error) {
 		}
 	}
 
-	return nil, 0, ErrProductNotFound
+	return nil, -1, ErrProductNotFound
 }
 
 func UpdateProduct(id int, p *Product) error {
-	fp, pos, err := findProduct(id)
-	if err == nil {
+	_, pos, err := findProduct(id)
+	if err != nil {
 		return err
 	}
 
 	p.ID = id
 	productList[pos] = p
+
+	return nil
 }
 
 // productList is a hard coded list of products for this
