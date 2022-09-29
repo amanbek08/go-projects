@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"go-projects/go-microservices/data"
 	"log"
 	"net/http"
@@ -69,6 +70,17 @@ func (p Products) MiddlewareProductValidation(next http.Handler) http.Handler {
 		err := prod.FromJSON(r.Body)
 		if err != nil {
 			http.Error(rw, "Unable to Unmarshall json", http.StatusBadRequest)
+		}
+
+		err = prod.Validate()
+		if err != nil {
+			p.l.Println("[ERROR] Validating product")
+			http.Error(
+				rw,
+				fmt.Sprintf("Error validating product: %s", err),
+				http.StatusBadRequest,
+			)
+			return
 		}
 
 		ctx := context.WithValue(r.Context(), KeyProduct{}, prod)
