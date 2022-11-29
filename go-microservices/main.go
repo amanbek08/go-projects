@@ -1,61 +1,79 @@
 package main
 
 import (
-	"context"
-	"go-projects/go-microservices/handlers"
+	"github.com/gofiber/fiber/v2"
+	// "context"
+	"go-projects/go-microservices/data"
 	"log"
-	"net/http"
-	"os"
-	"os/signal"
-	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/gofiber/fiber/v2/middleware/logger"
+	// "net/http"
+	// "os"
+	// "os/signal"
+	// "time"
+	// "github.com/gorilla/mux"
 )
 
-// "fmt"
-// "go-projects/structures"
+func setupRoutes(app *fiber.App) {
+	app.Get("/books", data.GetBooks)
+	app.Get("/book/:id", data.GetBook)
+	app.Post("/book", data.AddBook)
+}
 
 func main() {
-	l := log.New(os.Stdout, "product-api ", log.LstdFlags)
 
-	ph := handlers.NewProducts(l)
+	app := fiber.New()
 
-	sm := mux.NewRouter()
+	app.Use(
+		logger.New(logger.Config{
+			Format: "${pid} ${locals:requestid} ${status} - ${method} ${path}\n",
+		}), // add Logger middleware
+	)
 
-	getRouter := sm.Methods(http.MethodGet).Subrouter()
-	getRouter.HandleFunc("/", ph.GetProducts)
+	setupRoutes(app)
 
-	putRouter := sm.Methods(http.MethodPut).Subrouter()
-	putRouter.HandleFunc("/{id:[0-9]+}", ph.UpdateProducts)
-	putRouter.Use(ph.MiddlewareProductValidation)
+	log.Fatal(app.Listen(":3000"))
 
-	postRouter := sm.Methods(http.MethodPost).Subrouter()
-	postRouter.HandleFunc("/", ph.AddProduct)
-	postRouter.Use(ph.MiddlewareProductValidation)
+	// l := log.New(os.Stdout, "product-api ", log.LstdFlags)
 
-	s := &http.Server{
-		Addr:         ":9090",
-		Handler:      sm,
-		IdleTimeout:  120 * time.Second,
-		ReadTimeout:  1 * time.Second,
-		WriteTimeout: 1 * time.Second,
-	}
+	// ph := handlers.NewProducts(l)
 
-	go func() {
-		err := s.ListenAndServe()
-		if err != nil {
-			l.Fatal(err)
-		}
-	}()
+	// sm := mux.NewRouter()
 
-	sigChan := make(chan os.Signal)
-	signal.Notify(sigChan, os.Interrupt)
-	signal.Notify(sigChan, os.Kill)
+	// getRouter := sm.Methods(http.MethodGet).Subrouter()
+	// getRouter.HandleFunc("/", ph.GetProducts)
 
-	sig := <-sigChan
-	l.Println("Recieved terminate, graceful shutdown", sig)
+	// putRouter := sm.Methods(http.MethodPut).Subrouter()
+	// putRouter.HandleFunc("/{id:[0-9]+}", ph.UpdateProducts)
+	// putRouter.Use(ph.MiddlewareProductValidation)
 
-	tc, _ := context.WithTimeout(context.Background(), 30*time.Second)
-	s.Shutdown(tc)
+	// postRouter := sm.Methods(http.MethodPost).Subrouter()
+	// postRouter.HandleFunc("/", ph.AddProduct)
+	// postRouter.Use(ph.MiddlewareProductValidation)
+
+	// s := &http.Server{
+	// 	Addr:         ":9090",
+	// 	Handler:      sm,
+	// 	IdleTimeout:  120 * time.Second,
+	// 	ReadTimeout:  1 * time.Second,
+	// 	WriteTimeout: 1 * time.Second,
+	// }
+
+	// go func() {
+	// 	err := s.ListenAndServe()
+	// 	if err != nil {
+	// 		l.Fatal(err)
+	// 	}
+	// }()
+
+	// sigChan := make(chan os.Signal)
+	// signal.Notify(sigChan, os.Interrupt)
+	// signal.Notify(sigChan, os.Kill)
+
+	// sig := <-sigChan
+	// l.Println("Recieved terminate, graceful shutdown", sig)
+
+	// tc, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	// s.Shutdown(tc)
 
 }
