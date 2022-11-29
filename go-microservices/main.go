@@ -18,6 +18,7 @@ func setupRoutes(app *fiber.App) {
 	app.Get("/books", data.GetBooks)
 	app.Get("/book/:id", data.GetBook)
 	app.Post("/book", data.AddBook)
+	app.Patch("/book/:id", data.UpdateBook)
 }
 
 func main() {
